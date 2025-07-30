@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ID - Eli Lux">
-    <meta name="theme-color" content="#000001">
-    <meta name="msapplication-navbutton-color" content="#000001">
+    <meta name="theme-color" content="#000000">
+    <meta name="msapplication-navbutton-color" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
     <!-- Icons -->
@@ -671,19 +671,26 @@
                 audio.pause();
                 isPlaying = false;
                 document.getElementById('largeAlbumArt').classList.remove('playing');
+                updatePlayButton(); // Update button when pausing
             } else {
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
                         isPlaying = true;
                         document.getElementById('largeAlbumArt').classList.add('playing');
+                        updatePlayButton(); // Update button when playing starts
                     }).catch(e => {
                         console.error('Play failed:', e);
                         alert(`Playback failed. Please check if audio files exist.`);
+                        updatePlayButton(); // Update button on error too
                     });
+                } else {
+                    // Fallback for older browsers
+                    isPlaying = true;
+                    document.getElementById('largeAlbumArt').classList.add('playing');
+                    updatePlayButton();
                 }
             }
-            updatePlayButton();
         }
 
         function updatePlayButton() {
@@ -745,7 +752,7 @@
 
         audio.addEventListener('ended', () => {
             isPlaying = false;
-            updatePlayButton();
+            updatePlayButton(); // Update button when song ends
             document.getElementById('largeAlbumArt').classList.remove('playing');
             nextSong();
         });
