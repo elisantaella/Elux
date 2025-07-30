@@ -34,7 +34,6 @@
             position: relative;
             margin: 0;
             padding: 0;
-            /* Web app support */
             -webkit-user-select: none;
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
@@ -55,7 +54,6 @@
             z-index: -1;
         }
 
-        /* Main Container */
         .screen {
             display: none;
             min-height: 100vh;
@@ -67,7 +65,6 @@
             animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Song List Screen */
         .song-list-screen {
             padding: 20px;
         }
@@ -202,49 +199,6 @@
             font-weight: 400;
         }
 
-        .play-button {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .play-button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background: linear-gradient(45deg, rgba(255, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .play-button:hover::before {
-            opacity: 1;
-        }
-
-        .play-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
-        }
-
-        .play-button:active {
-            transform: scale(0.95);
-        }
-
-        /* Playback Screen */
         .playback-screen {
             padding: 20px;
             display: flex;
@@ -436,58 +390,6 @@
             box-shadow: 0 15px 30px rgba(255, 0, 0, 0.4);
         }
 
-        .volume-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .volume-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-        }
-
-        .volume-button:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.1);
-        }
-
-        .volume-slider {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-            max-width: 200px;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff0000, #000000);
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .volume-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.5);
-        }
-
-        /* Animations */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -541,7 +443,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Mobile Responsive */
         @media (max-width: 480px) {
             .song-list-screen {
                 padding: 15px;
@@ -562,12 +463,6 @@
             .album-art {
                 width: 60px;
                 height: 60px;
-                font-size: 20px;
-            }
-            
-            .play-button {
-                width: 50px;
-                height: 50px;
                 font-size: 20px;
             }
 
@@ -725,8 +620,8 @@
 
         function openPlayback(songIndex) {
             currentSongIndex = songIndex;
-            showScreen('playback');
             loadSong(songIndex);
+            showScreen('playback');
         }
 
         function goBack() {
@@ -752,7 +647,15 @@
             // Update UI
             document.getElementById('largeSongTitle').textContent = song.title;
             document.getElementById('largeSongArtist').textContent = song.artist;
-            document.getElementById('largeAlbumArt').textContent = song.albumArt;
+            
+            // Update large album art - use exact same HTML structure as initial load
+            const largeAlbumArt = document.getElementById('largeAlbumArt');
+            
+            if (song.title === "Nokia (Eli Lux Rework)") {
+                largeAlbumArt.innerHTML = '<img src="./assets/album.png" alt="Album Cover" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'DL\';">';
+            } else {
+                largeAlbumArt.innerHTML = '<img src="./assets/album.png" alt="Album Cover" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'EL\';">';
+            }
             
             // Load audio
             audio.src = song.file;
@@ -761,11 +664,6 @@
             // Reset play state
             isPlaying = false;
             updatePlayButton();
-            
-            // Update duration when loaded
-            audio.addEventListener('loadedmetadata', () => {
-                document.getElementById('duration').textContent = formatTime(audio.duration);
-            });
         }
 
         function togglePlayback() {
@@ -774,22 +672,18 @@
                 isPlaying = false;
                 document.getElementById('largeAlbumArt').classList.remove('playing');
             } else {
-                // Add more detailed error handling
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
                         isPlaying = true;
                         document.getElementById('largeAlbumArt').classList.add('playing');
-                        updatePlayButton(); // Make sure button updates after successful play
                     }).catch(e => {
                         console.error('Play failed:', e);
-                        console.error('Audio src:', audio.src);
-                        console.error('Audio readyState:', audio.readyState);
-                        alert(`Playback failed. Error: ${e.message}\n\nPlease check:\n1. Audio files exist in assets folder\n2. File names match exactly\n3. Files are valid MP3 format`);
+                        alert(`Playback failed. Please check if audio files exist.`);
                     });
                 }
             }
-            updatePlayButton(); // Update button immediately
+            updatePlayButton();
         }
 
         function updatePlayButton() {
@@ -800,7 +694,6 @@
         function previousSong() {
             currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
             loadSong(currentSongIndex);
-            // Auto-play the previous song
             setTimeout(() => {
                 if (!isPlaying) {
                     togglePlayback();
@@ -811,7 +704,6 @@
         function nextSong() {
             currentSongIndex = (currentSongIndex + 1) % songs.length;
             loadSong(currentSongIndex);
-            // Auto-play the next song
             setTimeout(() => {
                 if (!isPlaying) {
                     togglePlayback();
@@ -829,34 +721,6 @@
             }
         }
 
-        function setVolume(value) {
-            const volume = value / 100;
-            audio.volume = volume;
-            originalVolume = volume;
-            
-            const volumeButton = document.getElementById('volumeButton');
-            if (volume === 0) {
-                volumeButton.textContent = '🔇';
-            } else if (volume < 0.5) {
-                volumeButton.textContent = '🔉';
-            } else {
-                volumeButton.textContent = '🔊';
-            }
-        }
-
-        function toggleMute() {
-            if (isMuted) {
-                audio.volume = originalVolume;
-                isMuted = false;
-                document.getElementById('volumeButton').textContent = originalVolume < 0.5 ? '🔉' : '🔊';
-            } else {
-                originalVolume = audio.volume;
-                audio.volume = 0;
-                isMuted = true;
-                document.getElementById('volumeButton').textContent = '🔇';
-            }
-        }
-
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
             
@@ -865,7 +729,7 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // Update progress
+        // Event listeners
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const percentage = (audio.currentTime / audio.duration) * 100;
@@ -874,22 +738,24 @@
             }
         });
 
-        // Update duration when loaded
         audio.addEventListener('loadedmetadata', () => {
             const duration = formatTime(audio.duration);
             document.getElementById('duration').textContent = duration;
         });
 
-        // Handle song end
         audio.addEventListener('ended', () => {
             isPlaying = false;
             updatePlayButton();
             document.getElementById('largeAlbumArt').classList.remove('playing');
-            // Auto-play next song
             nextSong();
         });
 
-        // Add touch feedback for mobile
+        audio.addEventListener('error', (e) => {
+            console.error('Audio loading error:', e);
+            alert('Failed to load audio file. Please check if the file exists.');
+        });
+
+        // Touch feedback for mobile
         document.querySelectorAll('button').forEach(button => {
             button.addEventListener('touchstart', function() {
                 this.style.transform = 'scale(0.95)';
@@ -899,10 +765,6 @@
                 this.style.transform = '';
             });
         });
-
-        // Prevent click events on play buttons in song list from bubbling
-        document.querySelectorAll('.song-item .play-button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-       
+    </script>
+</body>
+</html>
