@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID - Eli Lux</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #0c0c0c 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Main Container */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen.active {
+            display: block;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Song List Screen */
+        .song-list-screen {
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff0000, #000000, #ff0000);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .song-item {
+            margin-bottom: 20px;
+            animation: fadeInScale 0.8s ease-out;
+            animation-fill-mode: both;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .song-item:nth-child(2) { animation-delay: 0.2s; }
+        .song-item:nth-child(3) { animation-delay: 0.4s; }
+        .song-item:nth-child(4) { animation-delay: 0.6s; }
+
+        .song-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .song-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            padding: 2px;
+            background: linear-gradient(45deg, #ff0000, #000000, #ff0000, #000000);
+            background-size: 400% 400%;
+            border-radius: 22px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask-composite: xor;
+            animation: borderGlow 3s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        .song-item:hover .song-container {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 0, 0, 0.2);
+        }
+
+        .song-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .album-art {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #ff0000, #000000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .album-art::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .song-item:hover .album-art::before {
+            transform: translateX(100%);
+        }
+
+        .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        .play-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .play-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(255, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .play-button:hover::before {
+            opacity: 1;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Playback Screen */
+        .playback-screen {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .playback-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px 20px;
+        }
+
+        .large-album-art {
+            width: 280px;
+            height: 280px;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #ff0000, #000000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: rotate 20s linear infinite;
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.3);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .large-album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 30px;
+        }
+
+        .large-album-art.playing {
+            animation: rotate 8s linear infinite;
+        }
+
+        .large-song-info {
+            margin-bottom: 40px;
+        }
+
+        .large-song-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffffff, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .large-song-artist {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .playback-controls {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                #ff0000 0%, 
+                #ff8000 16.66%, 
+                #ffff00 33.33%, 
+                #80ff00 50%, 
+                #00ff80 66.66%, 
+                #0080ff 83.33%, 
+                #8000ff 100%
+            );
+            background-size: 200% 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.1s ease;
+            animation: rainbowShift 2s linear infinite;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 6px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .main-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .control-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .main-play-button {
+            width: 80px;
+            height: 80px;
+            font-size: 32px;
+            background: linear-gradient(45deg, rgba(255, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+            backdrop-filter: blur(20px);
+        }
+
+        .control-button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-play-button:hover {
+            box-shadow: 0 15px 30px rgba(255, 0, 0, 0.4);
+        }
+
+        .volume-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .volume-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .volume-button:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            max-width: 200px;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0000, #000000);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes rainbowShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .song-list-screen {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .song-container {
+                padding: 15px;
+            }
+            
+            .song-content {
+                gap: 15px;
+            }
+            
+            .album-art {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            
+            .play-button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .large-album-art {
+                width: 240px;
+                height: 240px;
+                font-size: 50px;
+            }
+
+            .large-song-title {
+                font-size: 1.6rem;
+            }
+
+            .large-song-artist {
+                font-size: 1rem;
+            }
+
+            .main-controls {
+                gap: 20px;
+            }
+
+            .control-button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .main-play-button {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Song List Screen -->
+    <div class="screen song-list-screen active" id="songListScreen">
+        <div class="header">
+            <h1>ID</h1>
+            <p>Eli Lux - Unreleased Collection</p>
+        </div>
+
+        <div class="song-item" onclick="openPlayback(0)">
+            <div class="song-container">
+                <div class="song-content">
+                    <div class="album-art">
+                        <img src="./assets/album.png" alt="Album Cover" onerror="this.style.display='none'; this.parentElement.innerHTML='EL';">
+                    </div>
+                    <div class="song-info">
+                        <div class="song-title">Bass N Thrill</div>
+                        <div class="song-artist">Eli Lux</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="song-item" onclick="openPlayback(1)">
+            <div class="song-container">
+                <div class="song-content">
+                    <div class="album-art">
+                        <img src="./assets/album.png" alt="Album Cover" onerror="this.style.display='none'; this.parentElement.innerHTML='DL';">
+                    </div>
+                    <div class="song-info">
+                        <div class="song-title">Nokia (Eli Lux Rework)</div>
+                        <div class="song-artist">Drake, Eli Lux</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="song-item" onclick="openPlayback(2)">
+            <div class="song-container">
+                <div class="song-content">
+                    <div class="album-art">
+                        <img src="./assets/album.png" alt="Album Cover" onerror="this.style.display='none'; this.parentElement.innerHTML='EL';">
+                    </div>
+                    <div class="song-info">
+                        <div class="song-title">It's Faded</div>
+                        <div class="song-artist">Eli Lux</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playback Screen -->
+    <div class="screen playback-screen" id="playbackScreen">
+        <button class="back-button" onclick="goBack()">←</button>
+        
+        <div class="playback-content">
+            <div class="large-album-art" id="largeAlbumArt">
+                <img src="./assets/album.png" alt="Album Cover" style="width: 100%; height: 100%; object-fit: cover; border-radius: 30px;" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(45deg, #ff0000, #000000)'; this.parentElement.innerHTML='EL';">
+            </div>
+            
+            <div class="large-song-info">
+                <div class="large-song-title" id="largeSongTitle">Bass N Thrill</div>
+                <div class="large-song-artist" id="largeSongArtist">Eli Lux</div>
+            </div>
+
+            <div class="playback-controls">
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                    <div class="progress-bar" onclick="setProgress(event)">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="main-controls">
+                    <button class="control-button" onclick="previousSong()">⏮</button>
+                    <button class="control-button main-play-button" onclick="togglePlayback()" id="mainPlayButton">▶</button>
+                    <button class="control-button" onclick="nextSong()">⏭</button>
+                </div>
+
+                <div class="volume-controls">
+                    <button class="volume-button" onclick="toggleMute()" id="volumeButton">🔊</button>
+                    <button class="volume-button" onclick="setVolume(100)">MAX</button>
+                </div>
+            </div>
+        </div>
+
+        <audio id="currentAudio" preload="metadata"></audio>
+    </div>
+
+    <script>
+        const songs = [
+            {
+                title: "Bass N Thrill",
+                artist: "Eli Lux",
+                albumArt: "./assets/album.png",
+                file: "./assets/song1.mp3"
+            },
+            {
+                title: "Nokia (Eli Lux Rework)",
+                artist: "Drake, Eli Lux",
+                albumArt: "./assets/album.png",
+                file: "./assets/song2.mp3"
+            },
+            {
+                title: "It's Faded",
+                artist: "Eli Lux",
+                albumArt: "./assets/album.png",
+                file: "./assets/song3.mp3"
+            }
+        ];
+
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let isMuted = false;
+        let originalVolume = 0.7;
+        
+        const audio = document.getElementById('currentAudio');
+        const songListScreen = document.getElementById('songListScreen');
+        const playbackScreen = document.getElementById('playbackScreen');
+
+        audio.volume = originalVolume;
+
+        function openPlayback(songIndex) {
+            currentSongIndex = songIndex;
+            loadSong(songIndex);
+            showScreen('playback');
+        }
+
+        function goBack() {
+            audio.pause();
+            isPlaying = false;
+            updatePlayButton();
+            showScreen('songList');
+        }
+
+        function showScreen(screen) {
+            if (screen === 'songList') {
+                songListScreen.classList.add('active');
+                playbackScreen.classList.remove('active');
+            } else {
+                songListScreen.classList.remove('active');
+                playbackScreen.classList.add('active');
+            }
+        }
+
+        function loadSong(index) {
+            const song = songs[index];
+            
+            // Update UI
+            document.getElementById('largeSongTitle').textContent = song.title;
+            document.getElementById('largeSongArtist').textContent = song.artist;
+            document.getElementById('largeAlbumArt').textContent = song.albumArt;
+            
+            // Load audio
+            audio.src = song.file;
+            audio.load();
+            
+            // Reset play state
+            isPlaying = false;
+            updatePlayButton();
+            
+            // Update duration when loaded
+            audio.addEventListener('loadedmetadata', () => {
+                document.getElementById('duration').textContent = formatTime(audio.duration);
+            });
+        }
+
+        function togglePlayback() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                document.getElementById('largeAlbumArt').classList.remove('playing');
+            } else {
+                // Add more detailed error handling
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        document.getElementById('largeAlbumArt').classList.add('playing');
+                    }).catch(e => {
+                        console.error('Play failed:', e);
+                        console.error('Audio src:', audio.src);
+                        console.error('Audio readyState:', audio.readyState);
+                        alert(`Playback failed. Error: ${e.message}\n\nPlease check:\n1. Audio files exist in assets folder\n2. File names match exactly\n3. Files are valid MP3 format`);
+                    });
+                }
+            }
+            updatePlayButton();
+        }
+
+        function updatePlayButton() {
+            const playButton = document.getElementById('mainPlayButton');
+            playButton.textContent = isPlaying ? '⏸' : '▶';
+        }
+
+        function previousSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+        }
+
+        function setProgress(event) {
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (event.clientX - rect.left) / rect.width;
+            
+            if (audio.duration) {
+                audio.currentTime = percent * audio.duration;
+            }
+        }
+
+        function setVolume(value) {
+            const volume = value / 100;
+            audio.volume = volume;
+            originalVolume = volume;
+            
+            const volumeButton = document.getElementById('volumeButton');
+            if (volume === 0) {
+                volumeButton.textContent = '🔇';
+            } else if (volume < 0.5) {
+                volumeButton.textContent = '🔉';
+            } else {
+                volumeButton.textContent = '🔊';
+            }
+        }
+
+        function toggleMute() {
+            if (isMuted) {
+                audio.volume = originalVolume;
+                isMuted = false;
+                document.getElementById('volumeButton').textContent = originalVolume < 0.5 ? '🔉' : '🔊';
+            } else {
+                originalVolume = audio.volume;
+                audio.volume = 0;
+                isMuted = true;
+                document.getElementById('volumeButton').textContent = '🔇';
+            }
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update progress
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percentage = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progressFill').style.width = percentage + '%';
+                document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+            }
+        });
+
+        // Handle song end
+        audio.addEventListener('ended', () => {
+            nextSong();
+            if (isPlaying) {
+                setTimeout(() => {
+                    togglePlayback();
+                }, 100);
+            }
+        });
+
+        // Add touch feedback for mobile
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            button.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Prevent click events on play buttons in song list from bubbling
+        document.querySelectorAll('.song-item .play-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>
