@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ID - Eli Lux</title>
+    <title>USB - Santeli</title>
     
     <!-- Web App Manifest -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ID - Eli Lux">
+    <meta name="apple-mobile-web-app-title" content="ID - Santeli">
     <meta name="theme-color" content="#000000">
     <meta name="msapplication-navbutton-color" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
@@ -502,8 +502,8 @@
     <!-- Song List Screen -->
     <div class="screen song-list-screen active" id="songListScreen">
         <div class="header">
-            <h1>ID</h1>
-            <p>Eli Lux - Unreleased Collection</p>
+            <h1>USB</h1>
+            <p>Santeli - Unreleased Collection</p>
         </div>
 
         <div class="song-item" onclick="openPlayback(0)">
@@ -514,7 +514,7 @@
                     </div>
                     <div class="song-info">
                         <div class="song-title">Bass N Thrill</div>
-                        <div class="song-artist">Eli Lux</div>
+                        <div class="song-artist">Santeli</div>
                     </div>
                 </div>
             </div>
@@ -527,8 +527,8 @@
                         <img src="./assets/album.png" alt="Album Cover" onerror="this.style.display='none'; this.parentElement.innerHTML='DL';">
                     </div>
                     <div class="song-info">
-                        <div class="song-title">Nokia (Eli Lux Rework)</div>
-                        <div class="song-artist">Drake, Eli Lux</div>
+                        <div class="song-title">Nokia (Santeli Rework)</div>
+                        <div class="song-artist">Drake, Santeli</div>
                     </div>
                 </div>
             </div>
@@ -542,7 +542,7 @@
                     </div>
                     <div class="song-info">
                         <div class="song-title">It's Faded</div>
-                        <div class="song-artist">Eli Lux</div>
+                        <div class="song-artist">Santeli</div>
                     </div>
                 </div>
             </div>
@@ -560,7 +560,7 @@
             
             <div class="large-song-info">
                 <div class="large-song-title" id="largeSongTitle">Bass N Thrill</div>
-                <div class="large-song-artist" id="largeSongArtist">Eli Lux</div>
+                <div class="large-song-artist" id="largeSongArtist">Santeli</div>
             </div>
 
             <div class="playback-controls">
@@ -589,19 +589,19 @@
         const songs = [
             {
                 title: "Bass N Thrill",
-                artist: "Eli Lux",
+                artist: "Santeli",
                 albumArt: "./assets/album.png",
                 file: "./assets/song1.mp3"
             },
             {
-                title: "Nokia (Eli Lux Rework)",
-                artist: "Drake, Eli Lux",
+                title: "Nokia (Santeli Rework)",
+                artist: "Drake, Santeli",
                 albumArt: "./assets/album.png",
                 file: "./assets/song2.mp3"
             },
             {
                 title: "It's Faded",
-                artist: "Eli Lux",
+                artist: "Santeli",
                 albumArt: "./assets/album.png",
                 file: "./assets/song3.mp3"
             }
@@ -651,7 +651,7 @@
             // Update large album art - use exact same HTML structure as initial load
             const largeAlbumArt = document.getElementById('largeAlbumArt');
             
-            if (song.title === "Nokia (Eli Lux Rework)") {
+            if (song.title === "Nokia (Santeli Rework)") {
                 largeAlbumArt.innerHTML = '<img src="./assets/album.png" alt="Album Cover" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'DL\';">';
             } else {
                 largeAlbumArt.innerHTML = '<img src="./assets/album.png" alt="Album Cover" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'EL\';">';
